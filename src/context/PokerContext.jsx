@@ -11,6 +11,7 @@ export const PokerProvider = ({ children }) => {
   const [communityCards, setCommunityCards] = useState([])
   const [phase, setPhase] = useState('pre-flop') // 'flop', 'turn', 'river', 'showdown'
   const [winner, setWinner] = useState(null)
+  const [pot, setPot] = useState(0)
 
   const initializeGame = () => {
     const newDeck = shuffleDeck(createDeck())
@@ -22,7 +23,8 @@ export const PokerProvider = ({ children }) => {
         id: i + 1,
         name: i === 0 ? 'You' : `Bot ${i}`,
         cards: [newDeck.pop(), newDeck.pop()],
-        folded: false
+        folded: false,
+        chips: 100
       })
     }
 
@@ -31,6 +33,7 @@ export const PokerProvider = ({ children }) => {
     setCommunityCards([])
     setPhase('pre-flop')
     setWinner(null)
+    setPot(0)
   }
 
   const dealCommunityCards = () => {
@@ -49,8 +52,26 @@ export const PokerProvider = ({ children }) => {
     }
   }
 
+  const placeBet = (playerId, amount) => {
+    setPlayers(prev =>
+      prev.map(p =>
+        p.id === playerId && p.chips >= amount
+          ? { ...p, chips: p.chips - amount }
+          : p
+      )
+    )
+    setPot(prev => prev + amount)
+  }
+
+  const foldPlayer = playerId => {
+    setPlayers(prev =>
+      prev.map(p => (p.id === playerId ? { ...p, folded: true } : p))
+    )
+  }
+
   const determineWinner = () => {
-    const result = determineBestHand(players, communityCards)
+    const activePlayers = players.filter(p => !p.folded)
+    const result = determineBestHand(activePlayers, communityCards)
     setWinner({ ...result.winner, hand: result.handName })
   }
 
@@ -62,8 +83,11 @@ export const PokerProvider = ({ children }) => {
         communityCards,
         phase,
         winner,
+        pot,
         initializeGame,
         dealCommunityCards,
+        placeBet,
+        foldPlayer,
         setWinner
       }}
     >

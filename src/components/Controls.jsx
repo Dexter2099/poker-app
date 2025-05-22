@@ -2,7 +2,8 @@ import React from 'react'
 import { usePoker } from '../context/PokerContext'
 
 const Controls = () => {
-  const { initializeGame, dealCommunityCards, phase } = usePoker()
+  const { initializeGame, dealCommunityCards, phase, placeBet, foldPlayer, players } = usePoker()
+  const player = players[0] || {}
 
   const canDeal = phase === 'pre-flop'
   const canAdvance = ['pre-flop', 'flop', 'turn', 'river'].includes(phase)
@@ -15,6 +16,18 @@ const Controls = () => {
         <button onClick={initializeGame} style={buttonStyle}>
           🔁 Deal New Game
         </button>
+      )}
+
+      {/* Betting */}
+      {phase !== 'showdown' && !player.folded && (
+        <>
+          <button onClick={() => placeBet(player.id, 10)} style={buttonStyle}>
+            💰 Bet 10
+          </button>
+          <button onClick={() => foldPlayer(player.id)} style={buttonStyle}>
+            🚪 Fold
+          </button>
+        </>
       )}
 
       {/* Advance Phase */}

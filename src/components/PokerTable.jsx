@@ -4,11 +4,12 @@ import Controls from './Controls'
 import Card from './Card'
 
 const PokerTable = () => {
-  const { players, communityCards, phase, winner } = usePoker()
+  const { players, communityCards, phase, winner, pot } = usePoker()
 
   return (
     <div>
       <h2>Phase: {phase}</h2>
+      <h3>Pot: {pot}</h3>
 
       {/* Community Cards */}
       <div style={{ display: 'flex', justifyContent: 'center',  margin: '1rem 0' }}>
@@ -32,9 +33,13 @@ const PokerTable = () => {
             }}
           >
             <strong>{player.name}</strong>
+            <div style={{ marginTop: '0.25rem' }}>Chips: {player.chips}</div>
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: '0.5rem' }}>
               {player.cards.map((card, index) => (
-                <Card key={index} code={card.code} />
+                <Card
+                  key={index}
+                  code={player.id === 1 || phase === 'showdown' ? card.code : '🂠'}
+                />
               ))}
             </div>
           </div>
